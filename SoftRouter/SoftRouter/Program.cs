@@ -12,7 +12,10 @@ namespace SoftRouter
 {
 	class SoftRouter
 	{
+		#region 存储可用设备列表
 		static public List<ICaptureDevice> deviceList;
+		#endregion
+
 		static void Main(string[] args)
 		{
 			GetDeviceList();
@@ -22,6 +25,27 @@ namespace SoftRouter
 				dev.Open(DeviceMode.Promiscuous);
 				dev.OnPacketArrival += OnPacketArrval;
 				dev.StartCapture();
+			}
+
+			IPAddress ip1 = IPAddress.Parse("192.168.1.2");
+			MacAddress.GetMacAddress(ip1);
+			if (MacAddress.macAddress[ip1] != null)
+			{
+				Console.WriteLine(ip1.ToString() + ":" + MacAddress.macAddress[ip1]);
+			}
+			else
+			{
+				Console.WriteLine("null");
+			}
+			IPAddress ip2 = IPAddress.Parse("192.168.155.2");
+			MacAddress.GetMacAddress(ip2);
+			if (MacAddress.macAddress[ip2] != null)
+			{
+				Console.WriteLine(ip2.ToString() + ":" + MacAddress.macAddress[ip2]);
+			}
+			else
+			{
+				Console.WriteLine("null");
 			}
 
 			Console.ReadLine();
@@ -54,8 +78,29 @@ namespace SoftRouter
 		#region 数据包捕获处理
 		static public void OnPacketArrval(object sender, CaptureEventArgs e)
 		{
-			Console.WriteLine("Get a packet");
-			Console.WriteLine(e.Packet);
+			if (e.Packet.LinkLayerType == LinkLayers.Ethernet)
+			{
+				try
+				{
+					EthernetPacket eth = (EthernetPacket)EthernetPacket.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data);
+
+					if (eth.PayloadPacket is ARPPacket)
+					{
+						ARPPacket arp = (ARPPacket)eth.PayloadPacket;
+
+						if (arp.Operation == ARPOperation.Response || arp.Operation == ARPOperation.Request)
+						{
+							MacAddress.macAddress.Add(arp.SenderProtocolAddress, arp.SenderHardwareAddress);
+						}
+					}
+				}
+				catch
+				{
+					//Protocol of 49185 is not implemented
+					//不支持此协议,对此类协议包进行忽略
+					return;
+				}
+			}
 		}
 		#endregion
 	}
