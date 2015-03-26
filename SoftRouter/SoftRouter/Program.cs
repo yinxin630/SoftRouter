@@ -17,11 +17,19 @@ namespace SoftRouter
 		{
 			GetDeviceList();
 
-			int index = 1;
 			foreach (ICaptureDevice dev in deviceList)
 			{
-				Console.WriteLine(string.Format("ID:{0}\n{1}", index, dev));
-				index++;
+				dev.Open(DeviceMode.Promiscuous);
+				dev.OnPacketArrival += OnPacketArrval;
+				dev.StartCapture();
+			}
+
+			Console.ReadLine();
+
+			foreach (ICaptureDevice dev in deviceList)
+			{
+				dev.StopCapture();
+				dev.Close();
 			}
 		}
 
@@ -40,6 +48,14 @@ namespace SoftRouter
 					deviceList.Add(dev);
 				}
 			}
+		}
+		#endregion
+
+		#region 数据包捕获处理
+		static public void OnPacketArrval(object sender, CaptureEventArgs e)
+		{
+			Console.WriteLine("Get a packet");
+			Console.WriteLine(e.Packet);
 		}
 		#endregion
 	}
