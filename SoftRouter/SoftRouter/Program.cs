@@ -7,6 +7,7 @@ using SharpPcap;
 using PacketDotNet;
 using SharpPcap.WinPcap;
 using System.Net;
+using System.Threading;
 
 namespace SoftRouter
 {
@@ -14,6 +15,10 @@ namespace SoftRouter
 	{
 		#region 存储可用设备列表
 		static public List<ICaptureDevice> deviceList;
+		#endregion
+
+		#region 存储已处理IP包列表
+		static private List<ushort> hadHandledIpList = new List<ushort>();
 		#endregion
 
 		static void Main(string[] args)
@@ -25,27 +30,6 @@ namespace SoftRouter
 				dev.Open(DeviceMode.Promiscuous);
 				dev.OnPacketArrival += OnPacketArrval;
 				dev.StartCapture();
-			}
-
-			IPAddress ip1 = IPAddress.Parse("192.168.1.2");
-			MacAddress.GetMacAddress(ip1);
-			if (MacAddress.macAddress[ip1] != null)
-			{
-				Console.WriteLine(ip1.ToString() + ":" + MacAddress.macAddress[ip1]);
-			}
-			else
-			{
-				Console.WriteLine("null");
-			}
-			IPAddress ip2 = IPAddress.Parse("192.168.155.2");
-			MacAddress.GetMacAddress(ip2);
-			if (MacAddress.macAddress[ip2] != null)
-			{
-				Console.WriteLine(ip2.ToString() + ":" + MacAddress.macAddress[ip2]);
-			}
-			else
-			{
-				Console.WriteLine("null");
 			}
 
 			Console.ReadLine();
@@ -91,6 +75,39 @@ namespace SoftRouter
 						if (arp.Operation == ARPOperation.Response || arp.Operation == ARPOperation.Request)
 						{
 							MacAddress.macAddress.Add(arp.SenderProtocolAddress, arp.SenderHardwareAddress);
+						}
+					}
+					else if (eth.PayloadPacket is IPv4Packet)
+					{
+						IPv4Packet ip = (IPv4Packet)eth.PayloadPacket;
+
+						if (hadHandledIpList.Contains(ip.Id))
+						{
+							return;
+						}
+						hadHandledIpList.Add(ip.Id);
+
+						if (!(ip.PayloadPacket is ICMPv4Packet))
+							return;
+
+						Thread thread = new Thread(() => {
+							Console.WriteLine(string.Format("{0}:{1}:{2}/{5} = {3} -> {4}", DateTime.Now.Hour, DateTime.Now.Minute,
+								DateTime.Now.Second, ip.SourceAddress, ip.DestinationAddress, DateTime.Now.Millisecond));
+						});
+						thread.Start();
+
+						foreach (ICaptureDevice dev in deviceList)
+						{
+							if (dev != (ICaptureDevice)sender)
+							{
+								eth.SourceHwAddress = dev.MacAddress;
+								eth.DestinationHwAddress = MacAddress.GetMacAddress(ip.DestinationAddress);
+								if (MacAddress.macAddress[ip.DestinationAddress] == null)
+								{
+									return;
+								}
+								dev.SendPacket(eth);
+							}
 						}
 					}
 				}
