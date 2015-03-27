@@ -19,7 +19,7 @@ namespace SoftRouter
 		#endregion
 
 		#region 存储可用设备列表
-		static public List<ICaptureDevice> deviceList;
+		static public List<Device> deviceList;
 		#endregion
 
 		#region 存储已处理IP包列表
@@ -28,41 +28,23 @@ namespace SoftRouter
 
 		static void Main(string[] args)
 		{
-			GetDeviceList();
+			deviceList = Device.GetDeviceList();
 
-			foreach (ICaptureDevice dev in deviceList)
+			foreach (Device dev in deviceList)
 			{
-				dev.Open(DeviceMode.Promiscuous);
-				dev.OnPacketArrival += OnPacketArrval;
-				dev.StartCapture();
+
+				dev.Interface.OnPacketArrival += OnPacketArrval;
+				dev.Interface.StartCapture();
 			}
 
 			Console.ReadLine();
 
-			foreach (ICaptureDevice dev in deviceList)
+			foreach (Device dev in deviceList)
 			{
-				dev.StopCapture();
-				dev.Close();
+				dev.Interface.StopCapture();
+				dev.Interface.Close();
 			}
 		}
-
-		#region 获取机器可用IPv4设备列表
-		static private void GetDeviceList()
-		{
-			CaptureDeviceList devices = CaptureDeviceList.Instance;
-			deviceList = new List<ICaptureDevice>();
-
-			foreach (ICaptureDevice dev in devices)
-			{
-				WinPcapDevice winDev = (WinPcapDevice)dev;
-				IPAddress devIp = winDev.Addresses[0].Addr.ipAddress;
-				if (devIp != null && devIp.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-				{
-					deviceList.Add(dev);
-				}
-			}
-		}
-		#endregion
 
 		#region 数据包捕获处理
 		static public void OnPacketArrval(object sender, CaptureEventArgs e)
@@ -99,9 +81,9 @@ namespace SoftRouter
 						});
 						thread.Start();
 
-						foreach (ICaptureDevice dev in deviceList)
+						foreach (Device dev in deviceList)
 						{
-							if (dev != (ICaptureDevice)sender)
+							if (dev.Interface != (ICaptureDevice)sender)
 							{
 								eth.SourceHwAddress = dev.MacAddress;
 								if (!macAddress.ContainsKey(ip.DestinationAddress))
@@ -113,7 +95,7 @@ namespace SoftRouter
 								{
 									eth.DestinationHwAddress = macAddress[ip.DestinationAddress];
 								}
-								dev.SendPacket(eth);
+								dev.Interface.SendPacket(eth);
 							}
 						}
 					}
@@ -131,5 +113,13 @@ namespace SoftRouter
 			}
 		}
 		#endregion
+
+		static public IPAddress GetNetIpAddress(IPAddress ip, IPAddress mask)
+		{
+			var byte1 = ip.GetAddressBytes();
+			var byte2 = mask.GetAddressBytes();
+			return new IPAddress(new byte[] { (byte)(byte1[0] & byte2[0]), (byte)(byte1[1] & byte2[1]), 
+				(byte)(byte1[2] & byte2[2]), (byte)(byte1[3] & byte2[3]) });
+		}
 	}
 }
