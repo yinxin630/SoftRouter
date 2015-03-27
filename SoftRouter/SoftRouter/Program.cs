@@ -8,11 +8,16 @@ using PacketDotNet;
 using SharpPcap.WinPcap;
 using System.Net;
 using System.Threading;
+using System.Net.NetworkInformation;
 
 namespace SoftRouter
 {
 	class SoftRouter
 	{
+		#region 存储IP -> MAC 映射关系
+		static public Dictionary<IPAddress, PhysicalAddress> macAddress = new Dictionary<IPAddress, PhysicalAddress>();
+		#endregion
+
 		#region 存储可用设备列表
 		static public List<ICaptureDevice> deviceList;
 		#endregion
@@ -74,7 +79,7 @@ namespace SoftRouter
 
 						if (arp.Operation == ARPOperation.Response || arp.Operation == ARPOperation.Request)
 						{
-							MacAddress.macAddress.Add(arp.SenderProtocolAddress, arp.SenderHardwareAddress);
+							macAddress.Add(arp.SenderProtocolAddress, arp.SenderHardwareAddress);
 						}
 					}
 					else if (eth.PayloadPacket is IPv4Packet)
@@ -87,7 +92,8 @@ namespace SoftRouter
 						}
 						hadHandledIpList.Add(ip.Id);
 
-						Thread thread = new Thread(() => {
+						Thread thread = new Thread(() =>
+						{
 							Console.WriteLine(string.Format("{0}:{1}:{2}/{5} = {3} -> {4}", DateTime.Now.Hour, DateTime.Now.Minute,
 								DateTime.Now.Second, ip.SourceAddress, ip.DestinationAddress, DateTime.Now.Millisecond));
 						});
@@ -98,18 +104,22 @@ namespace SoftRouter
 							if (dev != (ICaptureDevice)sender)
 							{
 								eth.SourceHwAddress = dev.MacAddress;
-								if (!MacAddress.macAddress.ContainsKey(ip.DestinationAddress))
+								if (!macAddress.ContainsKey(ip.DestinationAddress))
 								{
 									MacAddress.GetMacAddress(ip.DestinationAddress);
 									return;
 								}
 								else
 								{
-									eth.DestinationHwAddress = MacAddress.macAddress[ip.DestinationAddress];
+									eth.DestinationHwAddress = macAddress[ip.DestinationAddress];
 								}
 								dev.SendPacket(eth);
 							}
 						}
+					}
+					else if (eth.PayloadPacket is PPPoEPacket)
+					{
+						
 					}
 				}
 				catch

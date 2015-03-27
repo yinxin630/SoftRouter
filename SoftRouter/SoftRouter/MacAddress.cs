@@ -13,10 +13,6 @@ namespace SoftRouter
 {
 	class MacAddress
 	{
-		#region 存储IP -> MAC 映射关系
-		static public Dictionary<IPAddress, PhysicalAddress> macAddress = new Dictionary<IPAddress, PhysicalAddress>();
-		#endregion
-
 		#region 获取IP所对应的MAC地址,超时返回null
 		static public void GetMacAddress(IPAddress ip)
 		{
