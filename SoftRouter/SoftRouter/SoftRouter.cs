@@ -114,6 +114,7 @@ namespace SoftRouter
 		}
 		#endregion
 
+		#region 根据IP地址与子网掩码获取网络地址
 		static public IPAddress GetNetIpAddress(IPAddress ip, IPAddress mask)
 		{
 			var byte1 = ip.GetAddressBytes();
@@ -121,5 +122,6 @@ namespace SoftRouter
 			return new IPAddress(new byte[] { (byte)(byte1[0] & byte2[0]), (byte)(byte1[1] & byte2[1]), 
 				(byte)(byte1[2] & byte2[2]), (byte)(byte1[3] & byte2[3]) });
 		}
+		#endregion
 	}
 }

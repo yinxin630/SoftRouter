@@ -13,7 +13,7 @@ namespace SoftRouter
 {
 	class MacAddress
 	{
-		#region 获取IP所对应的MAC地址,超时返回null
+		#region 获取IP地址的MAC信息,通过广播ARP请求包获取
 		static public void GetMacAddress(IPAddress ip)
 		{
 			//每个网卡均发送arp request包，并进入监听模式等待收取response包
