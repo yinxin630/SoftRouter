@@ -87,9 +87,6 @@ namespace SoftRouter
 						}
 						hadHandledIpList.Add(ip.Id);
 
-						if (!(ip.PayloadPacket is ICMPv4Packet))
-							return;
-
 						Thread thread = new Thread(() => {
 							Console.WriteLine(string.Format("{0}:{1}:{2}/{5} = {3} -> {4}", DateTime.Now.Hour, DateTime.Now.Minute,
 								DateTime.Now.Second, ip.SourceAddress, ip.DestinationAddress, DateTime.Now.Millisecond));
@@ -101,10 +98,14 @@ namespace SoftRouter
 							if (dev != (ICaptureDevice)sender)
 							{
 								eth.SourceHwAddress = dev.MacAddress;
-								eth.DestinationHwAddress = MacAddress.GetMacAddress(ip.DestinationAddress);
-								if (MacAddress.macAddress[ip.DestinationAddress] == null)
+								if (!MacAddress.macAddress.ContainsKey(ip.DestinationAddress))
 								{
+									MacAddress.GetMacAddress(ip.DestinationAddress);
 									return;
+								}
+								else
+								{
+									eth.DestinationHwAddress = MacAddress.macAddress[ip.DestinationAddress];
 								}
 								dev.SendPacket(eth);
 							}

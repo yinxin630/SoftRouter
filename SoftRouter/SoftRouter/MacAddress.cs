@@ -18,13 +18,8 @@ namespace SoftRouter
 		#endregion
 
 		#region 获取IP所对应的MAC地址,超时返回null
-		static public PhysicalAddress GetMacAddress(IPAddress ip)
+		static public void GetMacAddress(IPAddress ip)
 		{
-			if (macAddress.ContainsKey(ip))
-			{
-				return macAddress[ip];
-			}
-
 			//每个网卡均发送arp request包，并进入监听模式等待收取response包
 			foreach (ICaptureDevice dev in SoftRouter.deviceList)
 			{
@@ -40,16 +35,6 @@ namespace SoftRouter
 				eth.PayloadPacket = arp;
 				dev.SendPacket(eth);
 			}
-			for (int i = 0; i < 10 && !macAddress.ContainsKey(ip); i++)
-			{
-				Thread.Sleep(100);
-			}
-
-			if (!macAddress.ContainsKey(ip))
-			{
-				macAddress.Add(ip, null);
-			}
-			return macAddress[ip];
 		}
 		#endregion
 	}
