@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Device.cs" />
     <Compile Include="MacAddress.cs" />
+    <Compile Include="RouteTableList.cs" />
     <Compile Include="SoftRouter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RouteTable.cs" />

@@ -67,5 +67,27 @@ namespace SoftRouter
 				return _mac;
 			}
 		}
+
+		public IPAddress MaskAddress
+		{
+			get
+			{
+				return _mask;
+			}
+		}
+
+		public IPAddress NetAddress
+		{
+			get
+			{
+				return _net;
+			}
+		}
+
+		public override string ToString()
+		{
+			return string.Format("{0}\n{1}\n{2}\n{3}\n{4}\n",
+				_interface.Description, _mac, _ip, _mask, _net);
+		}
 	}
 }

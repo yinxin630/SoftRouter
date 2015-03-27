@@ -26,13 +26,16 @@ namespace SoftRouter
 		static private List<ushort> hadHandledIpList = new List<ushort>();
 		#endregion
 
+		#region 静态路由信息
+		RouteTableList staticRouting = new RouteTableList();
+		#endregion
+
 		static void Main(string[] args)
 		{
 			deviceList = Device.GetDeviceList();
 
 			foreach (Device dev in deviceList)
 			{
-
 				dev.Interface.OnPacketArrival += OnPacketArrval;
 				dev.Interface.StartCapture();
 			}
@@ -81,9 +84,12 @@ namespace SoftRouter
 						});
 						thread.Start();
 
+						bool hadSent = false;
+
+						#region 直连路由包
 						foreach (Device dev in deviceList)
 						{
-							if (dev.Interface != (ICaptureDevice)sender)
+							if (GetNetIpAddress(ip.DestinationAddress, dev.MaskAddress).ToString() == dev.NetAddress.ToString())
 							{
 								eth.SourceHwAddress = dev.MacAddress;
 								if (!macAddress.ContainsKey(ip.DestinationAddress))
@@ -96,8 +102,15 @@ namespace SoftRouter
 									eth.DestinationHwAddress = macAddress[ip.DestinationAddress];
 								}
 								dev.Interface.SendPacket(eth);
+								hadSent = true;
 							}
 						}
+						if (hadSent)
+						{
+							return;
+						}
+						#endregion
+
 					}
 					else if (eth.PayloadPacket is PPPoEPacket)
 					{
