@@ -17,7 +17,7 @@ namespace SoftRouter
 		static public void GetMacAddress(IPAddress ip)
 		{
 			//每个网卡均发送arp request包，并进入监听模式等待收取response包
-			foreach (Device dev in SoftRouter.deviceList)
+			foreach (Device dev in Device.GetDeviceList())
 			{
 				PhysicalAddress targetMac = PhysicalAddress.Parse("00-00-00-00-00-00");
 				IPAddress targetIp = ip;

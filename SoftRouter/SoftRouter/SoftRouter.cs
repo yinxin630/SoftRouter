@@ -15,31 +15,40 @@ namespace SoftRouter
 	class SoftRouter
 	{
 		#region 存储IP -> MAC 映射关系
-		static public Dictionary<IPAddress, PhysicalAddress> macAddress = new Dictionary<IPAddress, PhysicalAddress>();
+		private Dictionary<IPAddress, PhysicalAddress> macAddress;
 		#endregion
 
 		#region 存储可用设备列表
-		static public List<Device> deviceList;
+		private List<Device> deviceList;
 		#endregion
 
 		#region 存储已处理IP包列表
-		static private List<ushort> hadHandledIpList = new List<ushort>();
+		private List<ushort> hadHandledIpList;
 		#endregion
 
 		#region 静态路由信息
-		RouteTableList staticRouting = new RouteTableList();
+		private RouteTableList staticRouting;
 		#endregion
 
-		static void Main(string[] args)
+		public SoftRouter()
 		{
+			macAddress = new Dictionary<IPAddress, PhysicalAddress>();
 			deviceList = Device.GetDeviceList();
+			hadHandledIpList = new List<ushort>();
+			staticRouting = new RouteTableList();
+		}
 
+		public void StartCapture()
+		{
 			foreach (Device dev in deviceList)
 			{
 				dev.Interface.OnPacketArrival += OnPacketArrval;
 				dev.Interface.StartCapture();
 			}
+		}
 
+		public void StopCapture()
+		{
 			Console.ReadLine();
 
 			foreach (Device dev in deviceList)
@@ -50,7 +59,7 @@ namespace SoftRouter
 		}
 
 		#region 数据包捕获处理
-		static public void OnPacketArrval(object sender, CaptureEventArgs e)
+		private void OnPacketArrval(object sender, CaptureEventArgs e)
 		{
 			if (e.Packet.LinkLayerType == LinkLayers.Ethernet)
 			{
@@ -79,8 +88,8 @@ namespace SoftRouter
 
 						Thread thread = new Thread(() =>
 						{
-							Console.WriteLine(string.Format("{0}:{1}:{2}/{5} = {3} -> {4}", DateTime.Now.Hour, DateTime.Now.Minute,
-								DateTime.Now.Second, ip.SourceAddress, ip.DestinationAddress, DateTime.Now.Millisecond));
+							Console.WriteLine(string.Format("{0}:{1}:{2}/{5} = {3} -> {4}  type:{6}", DateTime.Now.Hour, DateTime.Now.Minute,
+								DateTime.Now.Second, ip.SourceAddress, ip.DestinationAddress, DateTime.Now.Millisecond, ip.Protocol));
 						});
 						thread.Start();
 
