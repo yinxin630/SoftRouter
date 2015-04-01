@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace SoftRouter
 {
-	class MacAddress
+	public class MacAddress
 	{
 		#region 获取IP地址的MAC信息,通过广播ARP请求包获取
 		static public void GetMacAddress(IPAddress ip)

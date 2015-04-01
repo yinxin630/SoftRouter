@@ -9,17 +9,18 @@ using SharpPcap.WinPcap;
 using System.Net;
 using System.Threading;
 using System.Net.NetworkInformation;
+using System.Windows.Forms;
 
 namespace SoftRouter
 {
-	class SoftRouter
+	public class SoftRouter
 	{
 		#region 存储IP -> MAC 映射关系
 		private Dictionary<IPAddress, PhysicalAddress> macAddress;
 		#endregion
 
 		#region 存储可用设备列表
-		private List<Device> deviceList;
+		public List<Device> deviceList;
 		#endregion
 
 		#region 存储已处理IP包列表
@@ -29,6 +30,8 @@ namespace SoftRouter
 		#region 静态路由信息
 		private RouteTableList staticRouting;
 		#endregion
+
+		public RichTextBox outputWindow;
 
 		public SoftRouter()
 		{
@@ -49,11 +52,16 @@ namespace SoftRouter
 
 		public void StopCapture()
 		{
-			Console.ReadLine();
-
 			foreach (Device dev in deviceList)
 			{
 				dev.Interface.StopCapture();
+			}
+		}
+
+		public void CloseDevice()
+		{
+			foreach (Device dev in deviceList)
+			{
 				dev.Interface.Close();
 			}
 		}
@@ -88,9 +96,17 @@ namespace SoftRouter
 
 						Thread thread = new Thread(() =>
 						{
-							Console.WriteLine(string.Format("{0}:{1}:{2}/{5} = {3} -> {4}  type:{6}", DateTime.Now.Hour, DateTime.Now.Minute,
-								DateTime.Now.Second, ip.SourceAddress, ip.DestinationAddress, DateTime.Now.Millisecond, ip.Protocol));
+							
+							if (outputWindow != null)
+							{
+								string info = string.Format("time:{0}:{1}:{2}/{5}  {3} -> {4}  type:{6}\n", DateTime.Now.Hour,
+									DateTime.Now.Minute, DateTime.Now.Second, ip.SourceAddress, ip.DestinationAddress, DateTime.Now.Millisecond, ip.Protocol);
+								outputWindow.AppendText(info);
+								outputWindow.Focus();
+								outputWindow.Select(outputWindow.TextLength, 0);
+							}
 						});
+						thread.IsBackground = true;
 						thread.Start();
 
 						bool hadSent = false;
@@ -120,10 +136,28 @@ namespace SoftRouter
 						}
 						#endregion
 
+						#region 非直连路由包
+						RouteTable route = staticRouting[ip.DestinationAddress];
+						if (route != null)
+						{
+							eth.SourceHwAddress = route.OutInterface.MacAddress;
+							if (!macAddress.ContainsKey(route.NextHop))
+							{
+								MacAddress.GetMacAddress(route.NextHop);
+								return;
+							}
+							else
+							{
+								eth.DestinationHwAddress = macAddress[route.NextHop];
+							}
+							route.OutInterface.SendPacket(eth);
+						}
+						#endregion
+
 					}
 					else if (eth.PayloadPacket is PPPoEPacket)
 					{
-						
+						//暂不处理
 					}
 				}
 				catch
@@ -145,5 +179,13 @@ namespace SoftRouter
 				(byte)(byte1[2] & byte2[2]), (byte)(byte1[3] & byte2[3]) });
 		}
 		#endregion
+
+		public RouteTableList StaticRouting
+		{
+			get
+			{
+				return staticRouting;
+			}
+		}
 	}
 }

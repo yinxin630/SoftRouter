@@ -9,7 +9,7 @@ using SharpPcap.WinPcap;
 
 namespace SoftRouter
 {
-	class Device
+	public class Device
 	{
 		#region 字段：设备接口,MAC地址,IP地址,子网掩码,网络地址
 		private ICaptureDevice _interface;
@@ -17,6 +17,7 @@ namespace SoftRouter
 		private IPAddress _ip;
 		private IPAddress _mask;
 		private IPAddress _net;
+		private string _name;
 		#endregion
 
 		#region Device类构造函数
@@ -29,6 +30,7 @@ namespace SoftRouter
 			this._ip = win.Addresses[0].Addr.ipAddress;
 			this._mask = win.Addresses[0].Netmask.ipAddress;
 			this._net = SoftRouter.GetNetIpAddress(_ip, _mask);
+			this._name = win.Interface.FriendlyName + " " + icd.Description.Split('\'')[1];
 		}
 		#endregion
 
@@ -83,11 +85,18 @@ namespace SoftRouter
 				return _net;
 			}
 		}
+		public string Name
+		{
+			get
+			{
+				return _name;
+			}
+		}
 
 		public override string ToString()
 		{
-			return string.Format("{0}\n{1}\n{2}\n{3}\n{4}\n",
-				_interface.Description, _mac, _ip, _mask, _net);
+			return string.Format("{5}\n{0}\n{1}\n{2}\n{3}\n{4}\n",
+				_interface.Description, _mac, _ip, _mask, _net, _name);
 		}
 	}
 }

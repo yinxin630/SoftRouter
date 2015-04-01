@@ -6,13 +6,45 @@ using System.Net;
 
 namespace SoftRouter
 {
-	class RouteTableList
+	public class RouteTableList
 	{
-		Dictionary<IPAddress, RouteTable> routeTable;
+		List<RouteTable> routeTable;
 
 		public RouteTableList()
 		{
- 			routeTable = new Dictionary<IPAddress,RouteTable>();
+ 			routeTable = new List<RouteTable>();
+		}
+
+		public RouteTable this[IPAddress ip]
+		{
+			get
+			{
+				RouteTable t = null;
+				foreach (RouteTable route in routeTable)
+				{
+					if (SoftRouter.GetNetIpAddress(ip, route.MaskAddress) == route.NetAddress || route.NetAddress == IPAddress.Any)
+					{
+						if (t == null)
+						{
+							t = route;
+						}
+						else
+						{
+							if (route.Level < t.Level)
+								t = route;
+						}
+					}
+				}
+				return t;
+			}
+		}
+
+		public List<RouteTable> RouteTable
+		{
+			get
+			{
+				return routeTable;
+			}
 		}
 	}
 }
