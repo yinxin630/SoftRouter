@@ -26,6 +26,17 @@ namespace SoftRouter
 			_outInterface = ic;
 		}
 
+		public override string ToString()
+		{
+			string msg = "";
+			msg += string.Format("网络地址:{0}\n", _net.ToString());
+			msg += string.Format("子网掩码:{0}\n", _mask.ToString());
+			msg += string.Format("下一跳:{0}\n", _nextHop.ToString());
+			msg += string.Format("优先级:{0}\n", _level);
+			msg += _outInterface.ToString();
+			return msg;
+		}
+
 		public IPAddress MaskAddress
 		{
 			get

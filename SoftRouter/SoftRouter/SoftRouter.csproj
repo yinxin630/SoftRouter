@@ -33,8 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IpAddressBox">
-      <HintPath>E:\C#\实验二 基于Ping的主机扫描小工具\IpAddressBox\bin\Release\IpAddressBox.dll</HintPath>
+    <Reference Include="IpAddressBox, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\C#\SoftRouter\SoftRouter\IpAddressBox.dll</HintPath>
     </Reference>
     <Reference Include="PacketDotNet">
       <HintPath>.\PacketDotNet.dll</HintPath>

@@ -36,10 +36,13 @@ namespace SoftRouter
 
 			ListViewItem item = new ListViewItem((listView1.Items.Count + 1).ToString());
 			item.SubItems.AddRange(new string[] {ipAddressBox1.Text, ipAddressBox2.Text, ipAddressBox3.Text, level.ToString(), comboBox1.SelectedText});
+
+			MessageBox.Show(route.ToString());
 		}
 
 		private void AddRoute_Load(object sender, EventArgs e)
 		{
+			numericUpDown1.Value = 60;
 			foreach (Device dev in Device.GetDeviceList())
 			{
 				comboBox1.Items.Add(dev.Name);

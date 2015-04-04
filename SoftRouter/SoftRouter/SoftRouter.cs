@@ -31,8 +31,6 @@ namespace SoftRouter
 		private RouteTableList staticRouting;
 		#endregion
 
-		public RichTextBox outputWindow;
-
 		public SoftRouter()
 		{
 			macAddress = new Dictionary<IPAddress, PhysicalAddress>();
@@ -66,6 +64,8 @@ namespace SoftRouter
 			}
 		}
 
+		public delegate void AppendPacketInfoEventHandle(string info);
+		public event AppendPacketInfoEventHandle OnAppendPacketInfo;
 		#region 数据包捕获处理
 		private void OnPacketArrval(object sender, CaptureEventArgs e)
 		{
@@ -81,7 +81,10 @@ namespace SoftRouter
 
 						if (arp.Operation == ARPOperation.Response || arp.Operation == ARPOperation.Request)
 						{
-							macAddress.Add(arp.SenderProtocolAddress, arp.SenderHardwareAddress);
+							if (!macAddress.ContainsKey(arp.SenderProtocolAddress))
+							{
+								macAddress.Add(arp.SenderProtocolAddress, arp.SenderHardwareAddress);
+							}
 						}
 					}
 					else if (eth.PayloadPacket is IPv4Packet)
@@ -96,15 +99,9 @@ namespace SoftRouter
 
 						Thread thread = new Thread(() =>
 						{
-							
-							if (outputWindow != null)
-							{
-								string info = string.Format("time:{0}:{1}:{2}/{5}  {3} -> {4}  type:{6}\n", DateTime.Now.Hour,
-									DateTime.Now.Minute, DateTime.Now.Second, ip.SourceAddress, ip.DestinationAddress, DateTime.Now.Millisecond, ip.Protocol);
-								outputWindow.AppendText(info);
-								outputWindow.Focus();
-								outputWindow.Select(outputWindow.TextLength, 0);
-							}
+							string info = string.Format("time:{0}:{1}:{2}/{5}  {3} -> {4}  type:{6}  size:{7}B\n", DateTime.Now.Hour,
+								DateTime.Now.Minute, DateTime.Now.Second, ip.SourceAddress, ip.DestinationAddress, DateTime.Now.Millisecond, ip.Protocol, e.Packet.Data.Length);
+							OnAppendPacketInfo(info);
 						});
 						thread.IsBackground = true;
 						thread.Start();

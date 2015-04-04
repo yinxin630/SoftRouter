@@ -12,7 +12,7 @@ namespace SoftRouter
 {
 	public partial class MainForm : Form
 	{
-		static public SoftRouter softRoute;
+		static public SoftRouter softRoute = new SoftRouter();
 		public MainForm()
 		{
 			InitializeComponent();
@@ -21,7 +21,7 @@ namespace SoftRouter
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
-			softRoute.outputWindow = richTextBox1;
+			softRoute.OnAppendPacketInfo += AppendPacketInfo;
 			toolStripButton2.Enabled = false;
 		}
 
@@ -48,6 +48,15 @@ namespace SoftRouter
 		{
 			AddRoute dia = new AddRoute();
 			dia.ShowDialog();
+		}
+		private void AppendPacketInfo(string info)
+		{
+			BeginInvoke((MethodInvoker)(() =>
+			{
+				richTextBox1.AppendText(info);
+				richTextBox1.Focus();
+				richTextBox1.Select(richTextBox1.TextLength, 0);
+			}));
 		}
 
 		public RouteTableList GetRoute()

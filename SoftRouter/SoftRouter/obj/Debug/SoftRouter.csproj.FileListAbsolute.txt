@@ -11,4 +11,3 @@ D:\GitHub\SoftRouter\SoftRouter\SoftRouter\obj\Debug\SoftRouter.exe
 D:\GitHub\SoftRouter\SoftRouter\SoftRouter\obj\Debug\SoftRouter.pdb
 D:\GitHub\SoftRouter\SoftRouter\SoftRouter\obj\Debug\SoftRouter.AddRoute.resources
 D:\GitHub\SoftRouter\SoftRouter\SoftRouter\bin\Debug\IpAddressBox.dll
-D:\GitHub\SoftRouter\SoftRouter\SoftRouter\bin\Debug\IpAddressBox.pdb

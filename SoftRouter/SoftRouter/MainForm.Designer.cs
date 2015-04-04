@@ -38,9 +38,14 @@
 			this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+			this.tabControl1 = new System.Windows.Forms.TabControl();
+			this.tabPage1 = new System.Windows.Forms.TabPage();
+			this.tabPage3 = new System.Windows.Forms.TabPage();
 			this.menuStrip1.SuspendLayout();
 			this.toolStrip1.SuspendLayout();
 			this.panel1.SuspendLayout();
+			this.tabControl1.SuspendLayout();
+			this.tabPage1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -122,9 +127,9 @@
 			// 
 			this.panel1.Controls.Add(this.richTextBox1);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel1.Location = new System.Drawing.Point(0, 60);
+			this.panel1.Location = new System.Drawing.Point(3, 3);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(614, 350);
+			this.panel1.Size = new System.Drawing.Size(600, 318);
 			this.panel1.TabIndex = 5;
 			// 
 			// richTextBox1
@@ -134,26 +139,57 @@
 			this.richTextBox1.Font = new System.Drawing.Font("宋体", 10F);
 			this.richTextBox1.ForeColor = System.Drawing.Color.Lime;
 			this.richTextBox1.Location = new System.Drawing.Point(0, 0);
-			this.richTextBox1.MinimumSize = new System.Drawing.Size(614, 350);
 			this.richTextBox1.Name = "richTextBox1";
 			this.richTextBox1.ReadOnly = true;
-			this.richTextBox1.Size = new System.Drawing.Size(614, 350);
+			this.richTextBox1.Size = new System.Drawing.Size(600, 318);
 			this.richTextBox1.TabIndex = 0;
 			this.richTextBox1.Text = "";
+			// 
+			// tabControl1
+			// 
+			this.tabControl1.Controls.Add(this.tabPage1);
+			this.tabControl1.Controls.Add(this.tabPage3);
+			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl1.Location = new System.Drawing.Point(0, 60);
+			this.tabControl1.Name = "tabControl1";
+			this.tabControl1.SelectedIndex = 0;
+			this.tabControl1.Size = new System.Drawing.Size(614, 350);
+			this.tabControl1.TabIndex = 6;
+			// 
+			// tabPage1
+			// 
+			this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
+			this.tabPage1.Controls.Add(this.panel1);
+			this.tabPage1.Location = new System.Drawing.Point(4, 22);
+			this.tabPage1.Name = "tabPage1";
+			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage1.Size = new System.Drawing.Size(606, 324);
+			this.tabPage1.TabIndex = 0;
+			this.tabPage1.Text = "数据包信息";
+			// 
+			// tabPage3
+			// 
+			this.tabPage3.BackColor = System.Drawing.SystemColors.Control;
+			this.tabPage3.Location = new System.Drawing.Point(4, 22);
+			this.tabPage3.Name = "tabPage3";
+			this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+			this.tabPage3.Size = new System.Drawing.Size(606, 324);
+			this.tabPage3.TabIndex = 2;
+			this.tabPage3.Text = "tabPage3";
 			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(614, 432);
-			this.Controls.Add(this.panel1);
+			this.Controls.Add(this.tabControl1);
 			this.Controls.Add(this.toolStrip1);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.menuStrip1);
 			this.MainMenuStrip = this.menuStrip1;
 			this.MinimumSize = new System.Drawing.Size(630, 471);
 			this.Name = "MainForm";
-			this.Text = "Form1";
+			this.Text = "多网卡软路由器";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.menuStrip1.ResumeLayout(false);
@@ -161,6 +197,8 @@
 			this.toolStrip1.ResumeLayout(false);
 			this.toolStrip1.PerformLayout();
 			this.panel1.ResumeLayout(false);
+			this.tabControl1.ResumeLayout(false);
+			this.tabPage1.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -178,6 +216,9 @@
 		private System.Windows.Forms.ToolStripButton toolStripButton2;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripButton toolStripButton3;
+		private System.Windows.Forms.TabControl tabControl1;
+		private System.Windows.Forms.TabPage tabPage1;
+		private System.Windows.Forms.TabPage tabPage3;
 	}
 }
 
