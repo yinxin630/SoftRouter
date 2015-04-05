@@ -95,8 +95,8 @@ namespace SoftRouter
 
 		public override string ToString()
 		{
-			return string.Format("{5}\n{0}\n{1}\n{2}\n{3}\n{4}\n",
-				_interface.Description, _mac, _ip, _mask, _net, _name);
+			return string.Format("设备名:{5}\n标识名:{0}\nMAC地址:{1}\nIP地址:{2}\n子网掩码:{3}\n网络地址:{4}\n",
+				_interface.Name, _mac, _ip, _mask, _net, _name);
 		}
 	}
 }

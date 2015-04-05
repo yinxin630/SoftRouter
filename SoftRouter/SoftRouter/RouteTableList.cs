@@ -22,7 +22,8 @@ namespace SoftRouter
 				RouteTable t = null;
 				foreach (RouteTable route in routeTable)
 				{
-					if (SoftRouter.GetNetIpAddress(ip, route.MaskAddress) == route.NetAddress || route.NetAddress == IPAddress.Any)
+					var net = SoftRouter.GetNetIpAddress(ip, route.MaskAddress);
+					if (net.ToString() == route.NetAddress.ToString() || route.NetAddress.ToString() == IPAddress.Any.ToString())
 					{
 						if (t == null)
 						{

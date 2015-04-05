@@ -23,6 +23,12 @@ namespace SoftRouter
 		{
 			softRoute.OnAppendPacketInfo += AppendPacketInfo;
 			toolStripButton2.Enabled = false;
+
+			foreach (Device dev in Device.GetDeviceList())
+			{
+				toolStripComboBox1.Items.Add(dev.Name);
+			}
+			toolStripComboBox1.SelectedIndex = 0;
 		}
 
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -62,6 +68,12 @@ namespace SoftRouter
 		public RouteTableList GetRoute()
 		{
 			return softRoute.StaticRouting;
+		}
+
+		private void toolStripButton4_Click(object sender, EventArgs e)
+		{
+			int selectNumber = toolStripComboBox1.SelectedIndex;
+			MessageBox.Show(softRoute.deviceList[selectNumber].ToString(), "网卡信息");
 		}
 	}
 }
