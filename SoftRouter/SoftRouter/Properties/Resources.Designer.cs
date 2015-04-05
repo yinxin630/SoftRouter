@@ -93,16 +93,6 @@ namespace SoftRouter.Properties {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        public static System.Drawing.Bitmap 加号 {
-            get {
-                object obj = ResourceManager.GetObject("加号", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
-        /// </summary>
         public static System.Drawing.Bitmap 开始 {
             get {
                 object obj = ResourceManager.GetObject("开始", resourceCulture);
