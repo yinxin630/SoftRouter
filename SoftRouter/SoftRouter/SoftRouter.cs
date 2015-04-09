@@ -16,7 +16,7 @@ namespace SoftRouter
 	public class SoftRouter
 	{
 		#region 存储IP -> MAC 映射关系
-		private Dictionary<IPAddress, PhysicalAddress> macAddress;
+		public Dictionary<IPAddress, PhysicalAddress> macAddress;
 		#endregion
 
 		#region 存储可用设备列表
@@ -31,12 +31,17 @@ namespace SoftRouter
 		private RouteTableList staticRouting;
 		#endregion
 
+		#region 存储数据包
+		public List<Packet> packets;
+		#endregion
+
 		public SoftRouter()
 		{
 			macAddress = new Dictionary<IPAddress, PhysicalAddress>();
 			deviceList = Device.GetDeviceList();
 			hadHandledIpList = new List<ushort>();
 			staticRouting = new RouteTableList();
+			packets = new List<Packet>();
 		}
 
 		public void StartCapture()
@@ -66,9 +71,41 @@ namespace SoftRouter
 
 		public delegate void AppendPacketInfoEventHandle(string info);
 		public event AppendPacketInfoEventHandle OnAppendPacketInfo;
+
+		public delegate void AddListviewItemEventHandle(ListViewItem item);
+		public event AddListviewItemEventHandle OnAddListviewItem;
 		#region 数据包捕获处理
 		private void OnPacketArrval(object sender, CaptureEventArgs e)
 		{
+			Packet packet = null;
+			try
+			{
+				packet = Packet.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data);
+			}
+			catch
+			{
+				return;
+			}
+			IPAddress source = IPAddress.Parse("127.0.0.1");
+			IPAddress destination = IPAddress.Parse("127.0.0.1");
+			string type = GetTopProtocolType(packet, ref source, ref destination);
+			Thread thread = new Thread(() =>
+			{
+				string info = string.Format("time:{0}:{1}:{2}/{5}  {3} -> {4}  type:{6}  size:{7}B\n", DateTime.Now.Hour,
+					DateTime.Now.Minute, DateTime.Now.Second, source, destination, DateTime.Now.Millisecond, type, e.Packet.Data.Length);
+				OnAppendPacketInfo(info);
+
+				lock (packets)
+				{
+					ListViewItem item = new ListViewItem(packets.Count.ToString());
+					item.SubItems.AddRange(new string[] { source.ToString(), destination.ToString(), e.Packet.Data.Length.ToString(), type});
+					OnAddListviewItem(item);
+					packets.Add(packet);
+				}
+			});
+			thread.IsBackground = true;
+			thread.Start();
+
 			if (e.Packet.LinkLayerType == LinkLayers.Ethernet)
 			{
 				try
@@ -97,20 +134,13 @@ namespace SoftRouter
 						}
 						hadHandledIpList.Add(ip.Id);
 
-						Thread thread = new Thread(() =>
-						{
-							string info = string.Format("time:{0}:{1}:{2}/{5}  {3} -> {4}  type:{6}  size:{7}B\n", DateTime.Now.Hour,
-								DateTime.Now.Minute, DateTime.Now.Second, ip.SourceAddress, ip.DestinationAddress, DateTime.Now.Millisecond, ip.Protocol, e.Packet.Data.Length);
-							OnAppendPacketInfo(info);
-						});
-						thread.IsBackground = true;
-						thread.Start();
-
 						bool hadSent = false;
 
 						#region 直连路由包
 						foreach (Device dev in deviceList)
 						{
+							if (dev.Interface == e.Device)
+								continue;
 							if (GetNetIpAddress(ip.DestinationAddress, dev.MaskAddress).ToString() == dev.NetAddress.ToString())
 							{
 								eth.SourceHwAddress = dev.MacAddress;
@@ -148,9 +178,9 @@ namespace SoftRouter
 								eth.DestinationHwAddress = macAddress[route.NextHop];
 							}
 							route.OutInterface.SendPacket(eth);
+							return;
 						}
 						#endregion
-
 					}
 					else if (eth.PayloadPacket is PPPoEPacket)
 					{
@@ -166,6 +196,68 @@ namespace SoftRouter
 			}
 		}
 		#endregion
+
+		public string GetTopProtocolType(Packet packet, ref IPAddress source, ref IPAddress destination)
+		{
+			if (packet.PayloadPacket != null)
+			{
+				if (packet is IPv4Packet)
+				{
+					IPv4Packet ipv4 = (IPv4Packet)packet;
+					source = ipv4.SourceAddress;
+					destination = ipv4.DestinationAddress;
+				}
+				if (packet is ARPPacket)
+				{
+					ARPPacket arp = (ARPPacket)packet;
+					source = arp.SenderProtocolAddress;
+					source = arp.TargetProtocolAddress;
+				}
+				return GetTopProtocolType(packet.PayloadPacket, ref source, ref destination);
+			}
+			string type = "";
+			if (packet is PacketDotNet.ARPPacket)
+			{
+				type = "ARP";
+			}
+			else if (packet is PacketDotNet.EthernetPacket)
+			{
+				type = "Ethernet";
+			}
+			else if (packet is PacketDotNet.ICMPv4Packet)
+			{
+				type = "ICMP";
+			}
+			else if (packet is PacketDotNet.InternetPacket)
+			{
+				type = "Internet";
+			}
+			else if (packet is PacketDotNet.IPv4Packet)
+			{
+				type = "IPv4";
+			}
+			else if (packet is PacketDotNet.PPPoEPacket)
+			{
+				type = "PPPoE";
+			}
+			else if (packet is PacketDotNet.PPPPacket)
+			{
+				type = "PPP";
+			}
+			else if (packet is PacketDotNet.TcpPacket)
+			{
+				type = "TCP";
+			}
+			else if (packet is PacketDotNet.UdpPacket)
+			{
+				type = "UDP";
+			}
+			else
+			{
+				type = "Other";
+			}
+			return type;
+		}
 
 		#region 根据IP地址与子网掩码获取网络地址
 		static public IPAddress GetNetIpAddress(IPAddress ip, IPAddress mask)
