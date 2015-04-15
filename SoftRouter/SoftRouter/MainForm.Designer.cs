@@ -28,13 +28,13 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.帮助HToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -46,7 +46,7 @@
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.tabPage3 = new System.Windows.Forms.TabPage();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-			this.listView1 = new System.Windows.Forms.ListView();
+			this.listView1 = new ListViewDoubleBuffer();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -118,6 +118,7 @@
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton1,
             this.toolStripButton2,
+            this.toolStripButton5,
             this.toolStripSeparator1,
             this.toolStripButton3,
             this.toolStripSeparator2,
@@ -150,6 +151,17 @@
 			this.toolStripButton2.Size = new System.Drawing.Size(32, 32);
 			this.toolStripButton2.Text = "停止捕获";
 			this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
+			// 
+			// toolStripButton5
+			// 
+			this.toolStripButton5.AutoSize = false;
+			this.toolStripButton5.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButton5.Image = global::SoftRouter.Properties.Resources.保存;
+			this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButton5.Name = "toolStripButton5";
+			this.toolStripButton5.Size = new System.Drawing.Size(32, 32);
+			this.toolStripButton5.Text = "保存数据包";
+			this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
 			// 
 			// toolStripSeparator1
 			// 
@@ -376,9 +388,9 @@
 			this.label8.AutoSize = true;
 			this.label8.Location = new System.Drawing.Point(304, 83);
 			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(41, 12);
+			this.label8.Size = new System.Drawing.Size(53, 12);
 			this.label8.TabIndex = 13;
-			this.label8.Text = "源MAC:";
+			this.label8.Text = "目的MAC:";
 			// 
 			// label7
 			// 
@@ -550,7 +562,6 @@
 			this.Controls.Add(this.toolStrip1);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.menuStrip1);
-			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.menuStrip1;
 			this.MinimumSize = new System.Drawing.Size(630, 471);
 			this.Name = "MainForm";
@@ -599,7 +610,6 @@
 		private System.Windows.Forms.ToolStripComboBox toolStripComboBox1;
 		private System.Windows.Forms.ToolStripButton toolStripButton4;
 		private System.Windows.Forms.SplitContainer splitContainer1;
-		private System.Windows.Forms.ListView listView1;
 		private System.Windows.Forms.ColumnHeader columnHeader1;
 		private System.Windows.Forms.ColumnHeader columnHeader2;
 		private System.Windows.Forms.ColumnHeader columnHeader3;
@@ -626,6 +636,8 @@
 		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.Label label8;
 		private System.Windows.Forms.Label label7;
+		private System.Windows.Forms.ToolStripButton toolStripButton5;
+		private ListViewDoubleBuffer listView1;
 	}
 }
 

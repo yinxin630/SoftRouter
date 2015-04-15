@@ -11,6 +11,7 @@ using SharpPcap;
 using PacketDotNet;
 using System.Net;
 using System.Net.NetworkInformation;
+using SharpPcap.LibPcap;
 
 namespace SoftRouter
 {
@@ -145,12 +146,17 @@ namespace SoftRouter
 				byte[] buffer = new byte[32];
 				ICMPv4Packet icmp = new ICMPv4Packet(new PacketDotNet.Utils.ByteArraySegment(buffer));
 				icmp.TypeCode = ICMPv4TypeCodes.EchoRequest;
-				//icmp.Checksum = ;
+				icmp.ID = (ushort)0;
+				icmp.Sequence = (ushort)0;
+				icmp.PayloadData = new byte[32];
+				icmp.Checksum = GetChecksum(icmp.Header);
 
 				IPAddress sourceIP = IPAddress.Parse(ipAddressBox1.Text);
 				IPAddress destinationIP = IPAddress.Parse(ipAddressBox2.Text);
 				IPv4Packet ipv4 = new IPv4Packet(sourceIP, destinationIP);
 				ipv4.PayloadPacket = icmp;
+				ipv4.TimeToLive = 128;
+				ipv4.Checksum = GetChecksum(ipv4.Header);
 
 				if (!softRoute.macAddress.ContainsKey(sourceIP))
 				{
@@ -173,12 +179,17 @@ namespace SoftRouter
 			//ARP
 			else if (comboBox1.SelectedIndex == 0)
 			{
-				//ARPPacket arp = new ARPPacket();
+				ARPPacket arp = new ARPPacket(ARPOperation.Request, PhysicalAddress.Parse(textBox2.Text), IPAddress.Parse(ipAddressBox2.Text),
+					PhysicalAddress.Parse(textBox1.Text), IPAddress.Parse(ipAddressBox1.Text));
+				EthernetPacket eth = new EthernetPacket(PhysicalAddress.Parse(textBox1.Text), PhysicalAddress.Parse(textBox2.Text), EthernetPacketType.Arp);
+				eth.PayloadPacket = arp;
+				softRoute.deviceList[comboBox2.SelectedIndex].Interface.SendPacket(eth);
 			}
 			//IP
 			else if (comboBox1.SelectedIndex == 1)
 			{
-				//IPv4Packet ipv4 = new IPv4Packet();
+				//IPv4Packet ipv4 = new IPv4Packet(IPAddress.Parse(ipAddressBox1.Text), IPAddress.Parse(ipAddressBox2.Text));
+
 			}
 			//TCP
 			else if (comboBox1.SelectedIndex == 2)
@@ -216,13 +227,43 @@ namespace SoftRouter
 
 				if (i % 16 == 15)
 				{
-					//richTextBox2.AppendText("   ");
-					//for (int j = i - 15; j <= i; j++)
-					//{
-					//	richTextBox2.AppendText(string.Format("{0}", (char)data[j]));
-					//}
 					richTextBox2.AppendText("\n");
 				}
+			}
+		}
+
+		private ushort GetChecksum(byte [] bytes)
+		{
+			int checksum = 0;
+
+			for (int i = 0; i < bytes.Length; i += 2)
+			{
+ 				checksum += (bytes[i] << 8) + bytes[i + 1];
+			}
+
+			while (checksum > 0xFFFF)
+			{
+				checksum = (checksum & 0xFFFF) + (checksum >> 16);
+			}
+
+			checksum = ~checksum;
+			return (ushort)checksum;
+		}
+
+		private void toolStripButton5_Click(object sender, EventArgs e)
+		{
+			SaveFileDialog dia = new SaveFileDialog();
+			dia.Filter = "数据包文件 (*.pcap)|*.pcap";
+			if (dia.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			{
+				CaptureFileWriterDevice fileWriter = new CaptureFileWriterDevice(dia.FileName);
+
+				foreach (Packet packet in softRoute.packets)
+				{
+					fileWriter.Write(packet.Bytes);
+				}
+
+				fileWriter.Close();
 			}
 		}
 	}

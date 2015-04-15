@@ -85,6 +85,9 @@
       <DependentUpon>AddRoute.cs</DependentUpon>
     </Compile>
     <Compile Include="Device.cs" />
+    <Compile Include="ListViewDoubleBuffer.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MacAddress.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -113,6 +116,7 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -161,7 +165,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SoftRouter.ico" />
+    <None Include="Resources\保存.png" />
     <Content Include="softsoute.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

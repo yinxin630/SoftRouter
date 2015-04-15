@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading;
 using System.Net.NetworkInformation;
 using System.Windows.Forms;
+using SharpPcap.LibPcap;
 
 namespace SoftRouter
 {
@@ -34,6 +35,8 @@ namespace SoftRouter
 		#region 存储数据包
 		public List<Packet> packets;
 		#endregion
+
+
 
 		public SoftRouter()
 		{
@@ -211,7 +214,7 @@ namespace SoftRouter
 				{
 					ARPPacket arp = (ARPPacket)packet;
 					source = arp.SenderProtocolAddress;
-					source = arp.TargetProtocolAddress;
+					destination = arp.TargetProtocolAddress;
 				}
 				return GetTopProtocolType(packet.PayloadPacket, ref source, ref destination);
 			}
